@@ -21,8 +21,8 @@ class CreateDepartmentsTable extends Migration
 
             $table->integer('status')->nullable()->default(1);
 
-            $table->integer('created_at')->nullable()->default(null)->unsigned();
-            $table->foreign('created_at')->references('id')->on('users')->onDelete('cascade');
+            $table->integer('created_by')->nullable()->default(null)->unsigned();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
