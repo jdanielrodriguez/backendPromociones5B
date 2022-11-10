@@ -1,13 +1,13 @@
 <?php
 
-namespace Ordenes\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use Ordenes\Http\Requests;
-use Ordenes\Users;
-use Ordenes\Proveedores;
-use Ordenes\Clientes;
+use App\Http\Requests;
+use App\Users;
+use App\Proveedores;
+use App\Clientes;
 use Webpatser\Uuid\Uuid;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\Auth;

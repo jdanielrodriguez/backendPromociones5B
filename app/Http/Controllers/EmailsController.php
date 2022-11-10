@@ -1,12 +1,12 @@
 <?php
 
-namespace Ordenes\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Mail;
 
-use Ordenes\Http\Requests;
+use App\Http\Requests;
 define('CORREO', 'send@ordenes.online');
 define('EMPRESA', 'Ordenes Online');
 abstract class EmailsController extends Controller

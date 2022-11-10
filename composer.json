@@ -33,7 +33,7 @@
             "database/factories"
         ],
         "psr-4": {
-            "Ordenes\\": "app/"
+            "App\\": "app/"
         }
     },
     "autoload-dev": {

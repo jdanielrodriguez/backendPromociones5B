@@ -171,11 +171,11 @@ return [
         /*
          * Application Service Providers...
          */
-        Ordenes\Providers\AppServiceProvider::class,
-        Ordenes\Providers\AuthServiceProvider::class,
-        // Ordenes\Providers\BroadcastServiceProvider::class,
-        Ordenes\Providers\EventServiceProvider::class,
-        Ordenes\Providers\RouteServiceProvider::class,
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     ],
 

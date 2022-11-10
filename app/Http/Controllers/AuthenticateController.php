@@ -1,15 +1,15 @@
 <?php
 
-namespace Ordenes\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Ordenes\Http\Requests;
+use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;	
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Ordenes\Users;
-use Ordenes\Imagenes;
+use App\Users;
+use App\Imagenes;
 use Response;
 use Validator;
 use Storage;

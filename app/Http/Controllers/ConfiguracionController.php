@@ -1,11 +1,11 @@
 <?php
 
-namespace Ordenes\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Ordenes\Http\Requests;
-use Ordenes\Imagenes;
-use Ordenes\Configuracion;
+use App\Http\Requests;
+use App\Imagenes;
+use App\Configuracion;
 use Response;
 use Validator;
 use DB;

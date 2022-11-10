@@ -1,6 +1,6 @@
 <?php
 
-namespace Ordenes;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,10 +14,6 @@ class Users extends Authenticatable
     ];
 
     public function rol(){
-        return $this->hasOne('Ordenes\Roles','id','rol');
-    }
-
-    public function referidos(){
-        return $this->hasMany('Ordenes\Users','referido','id');
+        return $this->hasOne('App\Roles','id','rol');
     }
 }

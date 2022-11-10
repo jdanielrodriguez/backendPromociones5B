@@ -1,10 +1,10 @@
 <?php
 
-namespace Ordenes\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Ordenes\Http\Requests;
-use Ordenes\Roles;
+use App\Http\Requests;
+use App\Roles;
 use Response;
 use Validator;
 class RolesController extends Controller
