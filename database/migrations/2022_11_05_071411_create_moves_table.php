@@ -23,6 +23,9 @@ class CreateMovesTable extends Migration
             $table->integer('winner')->nullable()->default(0);
             $table->integer('points')->nullable()->default(0);
 
+            $table->integer('department')->nullable()->default(null)->unsigned();
+            $table->foreign('department')->references('id')->on('departments')->onDelete('cascade');
+
             $table->integer('opportunity')->nullable()->default(null)->unsigned();
             $table->foreign('opportunity')->references('id')->on('opportunity')->onDelete('cascade');
 
