@@ -92,21 +92,10 @@ Route::group(['middleware' => ['jwt.auth']], function() {
     Route::resource('items', 'ItemsController');
 });
 
-Route::get('actualizaTipoCambio', "PasarelasController@actualizarTipoCambio");
-Route::get('anuncios', 'AnunciosController@index');
-Route::get('proveedores', 'ProveedoresController@index');
-Route::get('comisiones', 'ComisionesController@index');
+Route::post('play', "PlayController@play");
+Route::post('register', "UsersController@register");
 
 Route::get('filter/{id}/comentarios/{state}', "ComentariosController@getThisByFilter");
-Route::get('filter/{id}/comisiones/{state}', "ComisionesController@getThisByFilter");
-Route::get('filter/{id}/productos/{state}', "ProductosController@getThisByFilter");
-Route::get('filter/{id}/proveedores/{state}', "ProveedoresController@getThisByFilter");
-Route::get('filter/{id}/tipos-items/{state}', "CategoriasController@getThisByFilter");
-Route::get('filter/{id}/categorias/{state}', "TiposItemController@getThisByFilter");
-Route::get('filter/{id}/inventarios/{state}', "InventariosController@getThisByFilter");
-Route::get('filter/{id}/items/{state}', "ItemsController@getThisByFilter");
-Route::get('filter/{id}/intereses/{state}', "InteresesController@getThisByFilter");
-Route::get('filter/{id}/ventas/{state}', "VentasController@getThisByFilter");
 
 Route::get('list', 'PagosController@info');
 Route::post('validarCaptcha', 'AuthenticateController@validarCaptcha');

@@ -8,7 +8,7 @@ class Roles extends Model
 {
     protected $table = 'roles';
 
-    public function referidos(){
-        return $this->hasMany('App\Users','referido','id');
+    public function users(){
+        return $this->hasMany('App\Users','user','id');
     }
 }

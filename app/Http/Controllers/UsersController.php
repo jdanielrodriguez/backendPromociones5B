@@ -57,7 +57,10 @@ class UsersController extends Controller
         }
         return $mixed;
     }
+    public function register(Request $request)
+    {
 
+    }
     /**
      * Store a newly created resource in storage.
      *
