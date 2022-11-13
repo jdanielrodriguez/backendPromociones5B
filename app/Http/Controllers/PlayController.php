@@ -46,7 +46,7 @@ class PlayController extends Controller
         $reward = null;
         $opportunity = null;
         $player  = Players::whereRaw("id = ?", $moveObj->player)->first();
-        if($moveObj->opportunity !== null) {
+        if ($moveObj->opportunity !== null) {
             $winner = 1;
             $opportunity  = Opportunity::whereRaw("id = ?", $moveObj->opportunity)->first();
             $reward  = Rewards::whereRaw("id = ?", $opportunity->reward)->first();
@@ -95,17 +95,19 @@ class PlayController extends Controller
             $atmCode = $request->get('cajero');
             $depto = $request->get('departamento');
             $email = $request->get('correo');
-            $email_exists  = Players::whereRaw("email = ?", $email)->count();
-            if ($email_exists > 0) {
-                $currentPlayer  = Players::whereRaw("email = ?", $email)->first();
+            $dpi = $request->get('dpi');
+            $telefono = $request->get('telefono');
+            $email_exists  = Players::whereRaw("email = ? or phone = ? or dpi = ?", [$email, $telefono, $dpi]);
+            if ($email_exists->count() > 0) {
+                $currentPlayer  = $email_exists->first();
                 $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true);
                 return Response::json($returnData, $returnData['status']);
             }
             $newObject = new Players();
             $newObject->name =  $request->get('nombre');
-            $newObject->dpi =  $request->get('dpi');
-            $newObject->email =  $request->get('correo');
-            $newObject->phone =  $request->get('telefono');
+            $newObject->dpi =  $dpi;
+            $newObject->email =  $email;
+            $newObject->phone =  $telefono;
             $newObject->save();
             $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false);
             return Response::json($returnData, $returnData['status']);
@@ -113,14 +115,41 @@ class PlayController extends Controller
     }
     public function createMove($player, $authCode, $atmCode, $depto, $exist)
     {
+        // esta variable indica si se quiere limitar la entrega de premios a 1 por patrocinador al dia
+        $limited = false;
         $returnData = array(
             'status' => 404,
             'msg' => 'Move Saved Error.',
             'obj' => null
         );
-        $move_exists  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode])->count();
+        $isValid = $this->validatePlayer($player, $authCode, $atmCode, $limited);
+        if (!$isValid) {
+            $winner = $this->getMyWinner($player);
+            $returnObj = array(
+                'id' => $player->id,
+                'name' => $player->name,
+                'dpi' => $player->dpi,
+                'email' => $player->email,
+                'phone' => $player->phone,
+                'auth' => $authCode,
+                'atm' => $atmCode,
+                'move_id' => 0,
+                'points' => $winner->points,
+                'winner' => $winner->winner,
+                'date' => $winner->created_at,
+                'winObj' => null,
+            );
+            $returnData = array(
+                'status' => 200,
+                'msg' => 'User is alright winner.',
+                'obj' => $returnObj
+            );
+            return $returnData;
+        }
+        $moveObj  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode]);
+        $move_exists  = $moveObj->count();
         if ($move_exists > 0) {
-            $moveObj  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode])->first();
+            $moveObj  = $moveObj->first();
             if ($moveObj->player === $player->id) {
                 $returnObj = array(
                     'id' => $moveObj->id,
@@ -162,6 +191,8 @@ class PlayController extends Controller
             }
         }
 
+
+
         $moveObj = new Moves();
         $moveObj->auth = $authCode;
         $moveObj->atm = $atmCode;
@@ -170,26 +201,43 @@ class PlayController extends Controller
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
         $moveObj->department = $depto;
-        $opportunities  = Opportunity::all();
+        $opportunitiesObj  = $limited ? Opportunity::whereRaw("(avaliable = 1 and status = 1)")->groupBy('reward')->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)");
+        $opportunities = $opportunitiesObj->get();
+        $count = count($opportunities);
+        // 4 = 25% posibilidad de ganar
+        $maxRandon = $count * 4;
         $reward = null;
+        srand(time());
+        $ganador = false;
+        // sorteo Random
+        $numero_aleatorio = rand(0, $maxRandon);
         foreach ($opportunities as $key => $value) {
             if ($value->department === $depto || $value->department === null) {
-                if ($value->avaliable) {
+                if ($numero_aleatorio === $key) {
+                    $ganador = true;
+                }
+                if ($value->avaliable && $ganador) {
                     $reward  = Rewards::whereRaw("id = ?", $value->reward)->first();
                     if ($reward->avaliable > 0) {
-                        $moveObj->points = $value->points;
-                        $moveObj->winner = 1;
-                        $moveObj->opportunity = $value->id;
-                        $opportunity  = Opportunity::whereRaw("id = ?", $value->id)->first();
-                        $opportunity->avaliable = 0;
-                        $opportunity->status = 0;
-                        $opportunity->save();
-                        $reward->avaliable -= 1;
-                        if ($reward->avaliable === 0) {
-                            $reward->status = 0;
+                        $yetAvaliable = true;
+                        //TODO validar si ya se dio una oportunidad de este premio el dia de hoy
+                        if ($limited) {
                         }
-                        $reward->save();
-                        break;
+                        if ($yetAvaliable) {
+                            $moveObj->points = $value->points;
+                            $moveObj->winner = 1;
+                            $moveObj->opportunity = $value->id;
+                            $opportunity  = Opportunity::whereRaw("id = ?", $value->id)->first();
+                            $opportunity->avaliable = 0;
+                            $opportunity->status = 0;
+                            $opportunity->save();
+                            $reward->avaliable -= 1;
+                            if ($reward->avaliable === 0) {
+                                $reward->status = 0;
+                            }
+                            $reward->save();
+                            break;
+                        }
                     }
                 }
             }
@@ -212,8 +260,24 @@ class PlayController extends Controller
         $returnData = array(
             'status' => 200,
             'msg' => $exist ? 'Mode Added to user success' : 'Move Created success.',
-            'obj' => $returnObj
+            'obj' => $returnObj,
+            // 'count' => $count,
+            // 'opportunities' => $opportunities,
+            // 'maxRandon' => $maxRandon,
+            'random' => $numero_aleatorio
         );
         return $returnData;
+    }
+
+    public function validatePlayer($player, $authCode, $atmCode, $limited)
+    {
+        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1", [$player->id, $authCode, $atmCode]) : Moves::whereRaw("player = ? and winner = 1", $player->id);
+        return $moveObj->count() === 0;
+    }
+
+    public function getMyWinner($player)
+    {
+        $moveObj  = Moves::whereRaw("player = ? and winner = 1", $player->id)->first();
+        return $moveObj;
     }
 }

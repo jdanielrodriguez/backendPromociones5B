@@ -26,9 +26,10 @@ class RewardSeeder extends Seeder
             'created_at'        => date('Y-m-d H:m:s'),
             'updated_at'        => date('Y-m-d H:m:s')
         ]);
-        for($i = 0; $i < $avaliable; $i++) {
+
+        for ($i = 0; $i < $avaliable; $i++) {
             DB::table('opportunity')->insert([
-                'random_position'   => $i + 1,
+                'random_position'   => rand(0, $avaliable * 4),
                 'points'            => 100,
                 'avaliable'         => 1,
                 'department'        => null,
