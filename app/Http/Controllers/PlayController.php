@@ -201,7 +201,7 @@ class PlayController extends Controller
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
         $moveObj->department = $depto;
-        $opportunitiesObj  = $limited ? Opportunity::whereRaw("(avaliable = 1 and status = 1)")->groupBy('reward')->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)");
+        $opportunitiesObj  = $limited ? Opportunity::whereRaw("avaliable = 1 and status = 1")->groupBy('reward')->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)");
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar
@@ -271,7 +271,8 @@ class PlayController extends Controller
 
     public function validatePlayer($player, $authCode, $atmCode, $limited)
     {
-        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1", [$player->id, $authCode, $atmCode]) : Moves::whereRaw("player = ? and winner = 1", $player->id);
+        $now = date('Y-m-d H:m:s');
+        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
         return $moveObj->count() === 0;
     }
 
