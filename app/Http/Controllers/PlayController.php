@@ -95,12 +95,14 @@ class PlayController extends Controller
             $atmCode = $request->get('cajero');
             $depto = $request->get('departamento');
             $email = $request->get('correo');
+            $file = $request->get('file');
             $dpi = $request->get('dpi');
             $telefono = $request->get('telefono');
             $email_exists  = Players::whereRaw("email = ? or phone = ? or dpi = ?", [$email, $telefono, $dpi]);
+            $attachment_url= (new ImageRepository)->upload_image($file,'ruleta/' . $dpi);
             if ($email_exists->count() > 0) {
                 $currentPlayer  = $email_exists->first();
-                $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true);
+                $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true, $attachment_url);
                 return Response::json($returnData, $returnData['status']);
             }
             $newObject = new Players();
@@ -109,11 +111,12 @@ class PlayController extends Controller
             $newObject->email =  $email;
             $newObject->phone =  $telefono;
             $newObject->save();
-            $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false);
+       
+            $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false, $attachment_url);
             return Response::json($returnData, $returnData['status']);
         }
     }
-    public function createMove($player, $authCode, $atmCode, $depto, $exist)
+    public function createMove($player, $authCode, $atmCode, $depto, $exist, $file)
     {
         // esta variable indica si se quiere limitar la entrega de premios a 1 por patrocinador al dia
         $limited = false;
@@ -135,6 +138,8 @@ class PlayController extends Controller
                 'atm' => $atmCode,
                 'move_id' => 0,
                 'points' => $winner->points,
+                'filePath' => $file,
+                'departamento' => $depto,
                 'winner' => $winner->winner,
                 'date' => $winner->created_at,
                 'winObj' => null,
@@ -162,6 +167,8 @@ class PlayController extends Controller
                     'atm' => $atmCode,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
+                    'filePath' => $file,
+                    'departamento' => $depto,
                     'winner' => $moveObj->winner
                 );
                 $returnData = array(
@@ -181,6 +188,8 @@ class PlayController extends Controller
                     'atm' => $atmCode,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
+                    'filePath' => $file,
+                    'departamento' => $depto,
                     'winner' => $moveObj->winner,
                 );
                 $returnData = array(
@@ -196,7 +205,7 @@ class PlayController extends Controller
         $moveObj = new Moves();
         $moveObj->auth = $authCode;
         $moveObj->atm = $atmCode;
-        $moveObj->file = $atmCode;
+        $moveObj->file = $file;
         $moveObj->points = 0;
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
@@ -253,6 +262,8 @@ class PlayController extends Controller
             'atm' => $atmCode,
             'move_id' => $moveObj->id,
             'points' => $moveObj->points,
+            'filePath' => $file,
+            'departamento' => $depto,
             'winner' => $moveObj->winner,
             'date' => $moveObj->created_at,
             'winObj' => $reward,
