@@ -19,6 +19,7 @@ class CreateMovesTable extends Migration
             $table->string('auth')->nullable()->default(null);
             $table->string('atm')->nullable()->default(null);
             $table->text('file')->nullable()->default(null);
+            $table->tinyInteger('repechaje')->nullable()->default(0);
 
             $table->integer('winner')->nullable()->default(0);
             $table->integer('points')->nullable()->default(0);

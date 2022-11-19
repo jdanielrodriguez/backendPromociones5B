@@ -60,6 +60,7 @@ class PlayController extends Controller
             'phone' => $player->phone,
             'auth' => $moveObj->auth,
             'atm' => $moveObj->atm,
+            'file' => $moveObj->file,
             'date' => $moveObj->created_at,
             'points' => $moveObj->points,
             'winner' => $winner,
@@ -99,10 +100,9 @@ class PlayController extends Controller
             $dpi = $request->get('dpi');
             $telefono = $request->get('telefono');
             $email_exists  = Players::whereRaw("email = ? or phone = ? or dpi = ?", [$email, $telefono, $dpi]);
-            $attachment_url= (new ImageRepository)->upload_image($file,'ruleta/' . $dpi);
             if ($email_exists->count() > 0) {
                 $currentPlayer  = $email_exists->first();
-                $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true, $attachment_url);
+                $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true, $file);
                 return Response::json($returnData, $returnData['status']);
             }
             $newObject = new Players();
@@ -111,8 +111,8 @@ class PlayController extends Controller
             $newObject->email =  $email;
             $newObject->phone =  $telefono;
             $newObject->save();
-       
-            $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false, $attachment_url);
+
+            $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false, $file);
             return Response::json($returnData, $returnData['status']);
         }
     }
@@ -138,7 +138,7 @@ class PlayController extends Controller
                 'atm' => $atmCode,
                 'move_id' => 0,
                 'points' => $winner->points,
-                'filePath' => $file,
+                'filePath' => $winner->file,
                 'departamento' => $depto,
                 'winner' => $winner->winner,
                 'date' => $winner->created_at,
@@ -167,7 +167,7 @@ class PlayController extends Controller
                     'atm' => $atmCode,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
-                    'filePath' => $file,
+                    'filePath' => $moveObj->file,
                     'departamento' => $depto,
                     'winner' => $moveObj->winner
                 );
@@ -188,7 +188,7 @@ class PlayController extends Controller
                     'atm' => $atmCode,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
-                    'filePath' => $file,
+                    'filePath' => $moveObj->file,
                     'departamento' => $depto,
                     'winner' => $moveObj->winner,
                 );
@@ -200,12 +200,11 @@ class PlayController extends Controller
             }
         }
 
-
-
+        $attachment_url = (new ImageRepository)->upload_image($file, 'ruleta/' . $player->dpi);
         $moveObj = new Moves();
         $moveObj->auth = $authCode;
         $moveObj->atm = $atmCode;
-        $moveObj->file = $file;
+        $moveObj->file = $attachment_url;
         $moveObj->points = 0;
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
@@ -220,7 +219,11 @@ class PlayController extends Controller
         $ganador = false;
         // sorteo Random
         $numero_aleatorio = rand(0, $maxRandon);
+        $validateRepechaje = $this->validateRepechaje();
         foreach ($opportunities as $key => $value) {
+            if (!$validateRepechaje && $value->repechaje) {
+                continue;
+            }
             if ($value->department === $depto || $value->department === null) {
                 if ($numero_aleatorio === $key) {
                     $ganador = true;
@@ -235,8 +238,12 @@ class PlayController extends Controller
                         if ($yetAvaliable) {
                             $moveObj->points = $value->points;
                             $moveObj->winner = 1;
+                            $moveObj->repechaje = 0;
                             $moveObj->opportunity = $value->id;
                             $opportunity  = Opportunity::whereRaw("id = ?", $value->id)->first();
+                            if ($validateRepechaje && $opportunity->repechaje) {
+                                $moveObj->repechaje = 1;
+                            }
                             $opportunity->avaliable = 0;
                             $opportunity->status = 0;
                             $opportunity->save();
@@ -262,7 +269,7 @@ class PlayController extends Controller
             'atm' => $atmCode,
             'move_id' => $moveObj->id,
             'points' => $moveObj->points,
-            'filePath' => $file,
+            'filePath' => $attachment_url,
             'departamento' => $depto,
             'winner' => $moveObj->winner,
             'date' => $moveObj->created_at,
@@ -284,6 +291,14 @@ class PlayController extends Controller
     {
         $now = date('Y-m-d H:m:s');
         $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
+        return $moveObj->count() === 0;
+    }
+
+
+    public function validateRepechaje()
+    {
+        $now = date('Y-m-d H:m:s');
+        $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and WEEK(updated_at, 1) = WEEK(?, 1)", [$now]);
         return $moveObj->count() === 0;
     }
 

@@ -20,6 +20,7 @@ class CreateOpportunityTable extends Migration
             $table->integer('points')->nullable()->default(0);
             $table->tinyInteger('status')->nullable()->default(1);
             $table->tinyInteger('avaliable')->nullable()->default(1);
+            $table->tinyInteger('repechaje')->nullable()->default(0);
 
             $table->integer('reward')->nullable()->default(null)->unsigned();
             $table->foreign('reward')->references('id')->on('reward')->onDelete('cascade');

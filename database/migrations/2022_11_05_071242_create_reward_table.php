@@ -21,6 +21,7 @@ class CreateRewardTable extends Migration
             $table->string('lan')->nullable()->default(null);
             $table->string('link')->nullable()->default(null);
             $table->string('img')->nullable()->default(null);
+            $table->tinyInteger('repechaje')->nullable()->default(0);
 
             $table->bigInteger('avaliable')->nullable()->default(1);
             $table->integer('status')->nullable()->default(1);
