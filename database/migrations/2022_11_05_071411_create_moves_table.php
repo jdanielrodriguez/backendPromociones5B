@@ -17,7 +17,6 @@ class CreateMovesTable extends Migration
             $table->increments('id');
 
             $table->string('auth')->nullable()->default(null);
-            $table->string('atm')->nullable()->default(null);
             $table->text('file')->nullable()->default(null);
             $table->tinyInteger('repechaje')->nullable()->default(0);
 
@@ -32,6 +31,9 @@ class CreateMovesTable extends Migration
 
             $table->integer('player')->nullable()->default(null)->unsigned();
             $table->foreign('player')->references('id')->on('players')->onDelete('cascade');
+
+            $table->integer('atm')->nullable()->default(null)->unsigned();
+            $table->foreign('atm')->references('id')->on('atms')->onDelete('cascade');
             $table->timestamps();
         });
     }
