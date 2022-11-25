@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Players;
+use App\ATM;
 use App\Moves;
 use App\Departaments;
 use App\Opportunity;
@@ -99,10 +100,19 @@ class PlayController extends Controller
             $file = $request->get('file');
             $dpi = $request->get('dpi');
             $telefono = $request->get('telefono');
+            $atms  = ATM::whereRaw("department = ? and (atm = ? or modelo_atm = ?)", [$depto, $atmCode, $atmCode])->first();
+            if(!$atms){
+                $returnData = array(
+                    'status' => 401,
+                    'msg' => 'El numero de Cajero (ATM) no Existe.',
+                    'obj' => null
+                );
+                return Response::json($returnData, 401);
+            }
             $email_exists  = Players::whereRaw("email = ? or phone = ? or dpi = ?", [$email, $telefono, $dpi]);
             if ($email_exists->count() > 0) {
                 $currentPlayer  = $email_exists->first();
-                $returnData = $this->createMove($currentPlayer, $authCode, $atmCode, $depto, true, $file);
+                $returnData = $this->createMove($currentPlayer, $authCode, $atms, $depto, true, $file);
                 return Response::json($returnData, $returnData['status']);
             }
             $newObject = new Players();
@@ -112,7 +122,7 @@ class PlayController extends Controller
             $newObject->phone =  $telefono;
             $newObject->save();
 
-            $returnData = $this->createMove($newObject, $authCode, $atmCode, $depto, false, $file);
+            $returnData = $this->createMove($newObject, $authCode, $atms, $depto, false, $file);
             return Response::json($returnData, $returnData['status']);
         }
     }
@@ -135,7 +145,7 @@ class PlayController extends Controller
                 'email' => $player->email,
                 'phone' => $player->phone,
                 'auth' => $authCode,
-                'atm' => $atmCode,
+                'atm' => $atmCode->id,
                 'move_id' => 0,
                 'points' => $winner->points,
                 'filePath' => $winner->file,
@@ -151,7 +161,7 @@ class PlayController extends Controller
             );
             return $returnData;
         }
-        $moveObj  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode]);
+        $moveObj  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode->id]);
         $move_exists  = $moveObj->count();
         if ($move_exists > 0) {
             $moveObj  = $moveObj->first();
@@ -164,7 +174,7 @@ class PlayController extends Controller
                     'move_id' => $moveObj->id,
                     'phone' => $player->phone,
                     'auth' => $authCode,
-                    'atm' => $atmCode,
+                    'atm' => $atmCode->id,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
                     'filePath' => $moveObj->file,
@@ -185,7 +195,7 @@ class PlayController extends Controller
                     'phone' => $moveObj->phone,
                     'move_id' => $moveObj->id,
                     'auth' => $authCode,
-                    'atm' => $atmCode,
+                    'atm' => $atmCode->id,
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
                     'filePath' => $moveObj->file,
@@ -203,7 +213,7 @@ class PlayController extends Controller
         $attachment_url = (new ImageRepository)->upload_image($file, 'ruleta/' . $player->dpi);
         $moveObj = new Moves();
         $moveObj->auth = $authCode;
-        $moveObj->atm = $atmCode;
+        $moveObj->atm = $atmCode->id;
         $moveObj->file = $attachment_url;
         $moveObj->points = 0;
         $moveObj->winner = 0;
@@ -227,6 +237,10 @@ class PlayController extends Controller
             if ($value->department === $depto || $value->department === null) {
                 if ($numero_aleatorio === $key) {
                     $ganador = true;
+                }
+                // Validacion reward taco bell en departamento totonicapan 21 nunca ganara
+                if($value->reward === 5 && $depto === 21){
+                    $ganador = false;
                 }
                 if ($value->avaliable && $ganador) {
                     $reward  = Rewards::whereRaw("id = ?", $value->reward)->first();
@@ -266,7 +280,7 @@ class PlayController extends Controller
             'email' => $player->email,
             'phone' => $player->phone,
             'auth' => $authCode,
-            'atm' => $atmCode,
+            'atm' => $atmCode->id,
             'move_id' => $moveObj->id,
             'points' => $moveObj->points,
             'filePath' => $attachment_url,
@@ -290,7 +304,7 @@ class PlayController extends Controller
     public function validatePlayer($player, $authCode, $atmCode, $limited)
     {
         $now = date('Y-m-d H:m:s');
-        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
+        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode->id, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
         return $moveObj->count() === 0;
     }
 
