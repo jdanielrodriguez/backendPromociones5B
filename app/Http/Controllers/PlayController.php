@@ -70,7 +70,9 @@ class PlayController extends Controller
             'winOpt' => $opportunity,
         );
         // send Email
-        $this->createTacoBellReward($opportunity, $reward);
+        if ($reward->id === 5) {
+            $this->createTacoBellReward($opportunity, $reward);
+        }
         $returnData = array(
             'status' => 200,
             'msg' => 'Success',
@@ -344,18 +346,19 @@ class PlayController extends Controller
             $optObj = $opportunity;
             if ($optObj && $winObj) {
                 if ($winObj && $optObj && $winObj->use_code) {
-                    $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
                 }
             } else {
                 return false;
             }
-            $baseimagen = ImageCreateTrueColor(400, 400);
             //Cargamos la primera imagen(cabecera)
             if (file_exists("https://promociones5b.com/backend/public/premios/taco-bell.png")) {
                 $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/taco-bell.png");
             } else {
                 $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/taco-bell.png");
             }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
             //Unimos la primera imagen con la imagen base
             imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
             //Cargamos la segunda imagen(cuerpo)
@@ -364,15 +367,15 @@ class PlayController extends Controller
             //imagecopymerge($baseimagen, $ts_viewer, 110, 50, 0, 0, 300, 300, 100);
             $img = new TextToImage;
             $img->createImage(strtoupper($optObj->code), 17, 150, 60);
-            $img->saveAsPng('texto_' . $optObj->code, 'premios/textos/');
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 250, 305, 0, 0, 150, 55, 100);
             //Mostramos la imagen en el navegador
-            ImagePng($baseimagen, "premios/tacobell/cupon_" . $optObj->code . ".png", 5);
+            ImagePng($baseimagen, "./premios/tacobell/cupon_" . $optObj->code . ".png", 5);
             //Limpiamos la memoria utilizada con las imagenes
             ImageDestroy($logo);
             $img->imageDestroy();
-            unlink("premios/textos/texto_" . $optObj->code . ".png");
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
             ImageDestroy($baseimagen);
             $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
             // echo $url;

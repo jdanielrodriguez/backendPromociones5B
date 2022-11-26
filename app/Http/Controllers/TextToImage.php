@@ -27,7 +27,7 @@ class TextToImage
     {
 
         //text font path
-        $font = 'visbycf-bold-webfont.ttf';
+        $font = './visbycf-bold-webfont.ttf';
 
         //create the image
         $this->img = imagecreatetruecolor($imgWidth, $imgHeight);
@@ -58,6 +58,12 @@ class TextToImage
             imagettftext($this->img, $fontSize, $angle, $x, $y, $white, $font, $txt);
         }
         return true;
+    }
+
+    function createImageBase($imgWidth = 400, $imgHeight = 400)
+    {
+        //create the image
+        return imagecreatetruecolor($imgWidth, $imgHeight);
     }
 
     /**
