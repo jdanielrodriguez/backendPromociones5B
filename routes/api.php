@@ -95,6 +95,8 @@ Route::group(['middleware' => ['jwt.auth']], function() {
 Route::get('play/{move_id}', "PlayController@play");
 Route::post('register', "PlayController@register");
 Route::get('departments', "PlayController@getDepartments");
+Route::get('winners', "MovesController@winners");
+Route::resource('moves', 'MovesController');
 
 Route::get('filter/{id}/comentarios/{state}', "ComentariosController@getThisByFilter");
 

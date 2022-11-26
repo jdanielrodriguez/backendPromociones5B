@@ -16,6 +16,7 @@ class CreateOpportunityTable extends Migration
         Schema::create('opportunity', function (Blueprint $table) {
             $table->increments('id');
             
+            $table->string('img')->nullable()->default(null);
             $table->string('code')->nullable()->default(null);
             $table->integer('random_position')->nullable()->default(null);
             $table->integer('points')->nullable()->default(0);
