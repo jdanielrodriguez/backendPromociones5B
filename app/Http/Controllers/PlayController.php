@@ -291,9 +291,7 @@ class PlayController extends Controller
                         if ($limited) {
                         }
                         // Validacion reward taco bell crear imagen antes de enviar ganador
-                        if ($value->reward === 5) {
-                            $yetAvaliable = $this->createTacoBellReward($value, $reward);
-                        }
+                        $this->createSpecialReward($value, $reward);
                         if ($yetAvaliable) {
                             $moveObj->points = $value->points;
                             $moveObj->winner = 1;
@@ -344,6 +342,15 @@ class PlayController extends Controller
             'random' => $numero_aleatorio
         );
         return $returnData;
+    }
+
+    public function createSpecialReward($opportunity, $reward) {
+        $yetAvaliable = false;
+        if ($opportunity->reward === 5) {
+            $yetAvaliable = $this->createTacoBellReward($opportunity, $reward);
+        }
+
+        return $yetAvaliable;
     }
 
     public function validatePlayer($player, $authCode, $atmCode, $limited = true)
@@ -415,7 +422,7 @@ class PlayController extends Controller
             // echo $url;
             return true;
         } catch (Exception $e) {
-            return $e;
+            return false;
         }
     }
 }
