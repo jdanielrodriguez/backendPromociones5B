@@ -288,6 +288,18 @@ class PlayController extends Controller
                     $ganador = false;
                     continue;
                 }
+                if ($value->reward === 6) {
+                    if ($depto !== 7) {
+                        $ganador = false;
+                        continue;
+                    }
+                    $now = date('Y-m-d H:m:s');
+                    $promericaAvaliable = Opportunity::whereRaw("reward = ? and avaliable = 0 and DAY(updated_at) = DAY(?)", [$value->reward, $now])->count();
+                    if ($promericaAvaliable === 2) {
+                        $ganador = false;
+                        continue;
+                    }
+                }
                 if ($value->avaliable && $ganador && $dayAvaliable) {
                     $reward  = Rewards::whereRaw("id = ?", $value->reward)->first();
                     if ($reward->avaliable > 0) {
@@ -296,7 +308,8 @@ class PlayController extends Controller
                         if ($limited) {
                         }
                         // Validacion reward taco bell crear imagen antes de enviar ganador
-                        $this->createSpecialReward($value, $reward);
+                        $yetAvaliable = $this->createSpecialReward($value, $reward);
+
                         if ($yetAvaliable) {
                             $moveObj->points = $value->points;
                             $moveObj->winner = 1;
@@ -349,7 +362,8 @@ class PlayController extends Controller
         return $returnData;
     }
 
-    public function createSpecialReward($opportunity, $reward) {
+    public function createSpecialReward($opportunity, $reward)
+    {
         $yetAvaliable = false;
         if ($opportunity->reward === 5) {
             $yetAvaliable = $this->createTacoBellReward($opportunity, $reward);
@@ -409,26 +423,17 @@ class PlayController extends Controller
             }
             $imgBase = new TextToImage;
             $baseimagen = $imgBase->createImageBase();
-            //Unimos la primera imagen con la imagen base
             imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
-            //Cargamos la segunda imagen(cuerpo)
-            // $ts_viewer = ImageCreateFromPng("https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://promociones5b.com/dashboard/verificacion.php?codigo=" . $objectSee->codigo);
-            //Juntamos la segunda imagen con la imagen base
-            //imagecopymerge($baseimagen, $ts_viewer, 110, 50, 0, 0, 300, 300, 100);
             $img = new TextToImage;
             $img->createImage(strtoupper($optObj->code), 17, 150, 60);
             $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 250, 305, 0, 0, 150, 55, 100);
-            //Mostramos la imagen en el navegador
             ImagePng($baseimagen, "./premios/tacobell/cupon_" . $optObj->code . ".png", 5);
-            //Limpiamos la memoria utilizada con las imagenes
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
             ImageDestroy($baseimagen);
-            // $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
-            // echo $url;
             return true;
         } catch (Exception $e) {
             return false;
@@ -455,26 +460,17 @@ class PlayController extends Controller
             }
             $imgBase = new TextToImage;
             $baseimagen = $imgBase->createImageBase();
-            //Unimos la primera imagen con la imagen base
             imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
-            //Cargamos la segunda imagen(cuerpo)
-            // $ts_viewer = ImageCreateFromPng("https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://promociones5b.com/dashboard/verificacion.php?codigo=" . $objectSee->codigo);
-            //Juntamos la segunda imagen con la imagen base
-            //imagecopymerge($baseimagen, $ts_viewer, 110, 50, 0, 0, 300, 300, 100);
             $img = new TextToImage;
             $img->createImage(strtoupper($optObj->code), 11, 150, 60);
             $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 247, 317, 0, 0, 150, 55, 100);
-            //Mostramos la imagen en el navegador
             ImagePng($baseimagen, "./premios/promerica/cupon_" . $optObj->code . ".png", 5);
-            //Limpiamos la memoria utilizada con las imagenes
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
             ImageDestroy($baseimagen);
-            // $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
-            // echo $url;
             return true;
         } catch (Exception $e) {
             return false;

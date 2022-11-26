@@ -464,7 +464,7 @@ class RewardSeeder extends Seeder
                 'points'            => 25,
                 'avaliable'         => 1,
                 'department'        => null,
-                'img'               => 'cupon_' . $uuid . '.jpg',
+                'img'               => 'cupon_' . $uuid . '.png',
                 'code'              => $uuid,
                 'reward'            => 6,
                 'status'            => 1,
