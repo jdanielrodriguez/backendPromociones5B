@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Players;
+use App\Correos;
 use App\ATM;
 use App\Moves;
 use App\Departaments;
@@ -54,7 +55,7 @@ class PlayController extends Controller
             $reward  = Rewards::whereRaw("id = ?", $opportunity->reward)->first();
         }
         $returnObj = array(
-            'id' => $moveObj->id,
+            'id' => $player->id,
             'name' => $player->name,
             'dpi' => $player->dpi,
             'email' => $player->email,
@@ -70,9 +71,40 @@ class PlayController extends Controller
             'winOpt' => $opportunity,
         );
         // send Email
-        if ($reward->id === 5) {
+        if ($reward && $reward->id === 5) {
             $this->createTacoBellReward($opportunity, $reward);
         }
+        $emailExist = Correos::whereRaw("player = ? and move = ?", [$player->id, $moveObj->id])->count();
+        if ($winner === 1 && $emailExist === 0) {
+            try {
+                EmailsController::enviarReward($returnObj);
+                $correo = new Correos();
+                $winObj = $reward;
+                $optObj = $opportunity;
+                $winImg = '';
+                if ($optObj && $winObj) {
+                    if ($winObj && $optObj && $winObj->use_code) {
+                        $winImg = $winObj->img . "cupon_" . $optObj->code . ".png";
+                    }
+                }
+                $correo->move = $moveObj->id;
+                $correo->player = $player->id;
+                $correo->adjunto = $winImg;
+                $correo->correo = $player->email;
+                $correo->estado = 1;
+                $correo->whatsapp = 1;
+                $correo->recibido = date('Y-m-d H:m:s');
+                $correo->save();
+            } catch (Exception $e) {
+                $returnData = array(
+                    'status' => 500,
+                    'msg' => 'error',
+                    'obj' => $e
+                );
+                return Response::json($returnData, 500);
+            }
+        }
+
         $returnData = array(
             'status' => 200,
             'msg' => 'Success',
@@ -172,7 +204,7 @@ class PlayController extends Controller
             $moveObj  = $moveObj->first();
             if ($moveObj->player === $player->id) {
                 $returnObj = array(
-                    'id' => $moveObj->id,
+                    'id' => $player->id,
                     'name' => $player->name,
                     'dpi' => $player->dpi,
                     'email' => $player->email,
@@ -377,7 +409,7 @@ class PlayController extends Controller
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
             ImageDestroy($baseimagen);
-            $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
+            // $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
             // echo $url;
             return true;
         } catch (Exception $e) {
