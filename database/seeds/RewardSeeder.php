@@ -440,5 +440,37 @@ class RewardSeeder extends Seeder
                 'updated_at'        => $datetime->format('Y-m-d H:i:s')
             ]);
         }
+
+        $avaliablePromerica = 8;
+        DB::table('reward')->insert([
+            'id'                => 6,
+            'name'              => 'Promerica.',
+            'description'       => 'Promerica',
+            'lan'               => 'es',
+            'link'              => null,
+            'img'               => 'https://promociones5b.com/backend/public/premios/promerica/',
+            'avaliable'         => $avaliablePromerica,
+            'user'              => null,
+            'use_code'          => true,
+            'status'            => 1,
+            'created_at'        => date('Y-m-d H:m:s'),
+            'updated_at'        => date('Y-m-d H:m:s')
+        ]);
+
+        for ($i = 0; $i < $avaliablePromerica; $i++) {
+            $uuid = uniqid();
+            DB::table('opportunity')->insert([
+                'random_position'   => rand(0, $avaliable * 4),
+                'points'            => 25,
+                'avaliable'         => 1,
+                'department'        => null,
+                'img'               => 'cupon_' . $uuid . '.jpg',
+                'code'              => $uuid,
+                'reward'            => 6,
+                'status'            => 1,
+                'created_at'        => date('Y-m-d H:m:s'),
+                'updated_at'        => $datetime->format('Y-m-d H:i:s')
+            ]);
+        }
     }
 }

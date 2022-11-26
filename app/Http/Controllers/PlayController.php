@@ -74,6 +74,11 @@ class PlayController extends Controller
         if ($reward && $reward->id === 5) {
             $this->createTacoBellReward($opportunity, $reward);
         }
+
+        if ($reward && $reward->id === 6) {
+            $this->createPromericaReward($opportunity, $reward);
+        }
+
         $emailExist = Correos::whereRaw("player = ? and move = ?", [$player->id, $moveObj->id])->count();
         if ($winner === 1 && $emailExist === 0) {
             try {
@@ -350,6 +355,10 @@ class PlayController extends Controller
             $yetAvaliable = $this->createTacoBellReward($opportunity, $reward);
         }
 
+        if ($opportunity->reward === 6) {
+            $yetAvaliable = $this->createPromericaReward($opportunity, $reward);
+        }
+
         return $yetAvaliable;
     }
 
@@ -413,6 +422,52 @@ class PlayController extends Controller
             imagecopymerge($baseimagen, $textImg, 250, 305, 0, 0, 150, 55, 100);
             //Mostramos la imagen en el navegador
             ImagePng($baseimagen, "./premios/tacobell/cupon_" . $optObj->code . ".png", 5);
+            //Limpiamos la memoria utilizada con las imagenes
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            // $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
+            // echo $url;
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function createPromericaReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            //Cargamos la primera imagen(cabecera)
+            if (file_exists("https://promociones5b.com/backend/public/premios/promerica.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+            }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
+            //Unimos la primera imagen con la imagen base
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            //Cargamos la segunda imagen(cuerpo)
+            // $ts_viewer = ImageCreateFromPng("https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://promociones5b.com/dashboard/verificacion.php?codigo=" . $objectSee->codigo);
+            //Juntamos la segunda imagen con la imagen base
+            //imagecopymerge($baseimagen, $ts_viewer, 110, 50, 0, 0, 300, 300, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 11, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 247, 317, 0, 0, 150, 55, 100);
+            //Mostramos la imagen en el navegador
+            ImagePng($baseimagen, "./premios/promerica/cupon_" . $optObj->code . ".png", 5);
             //Limpiamos la memoria utilizada con las imagenes
             ImageDestroy($logo);
             $img->imageDestroy();
