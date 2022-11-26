@@ -17,8 +17,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+        apt-get install -y --no-install-recommends \
         libz-dev \
         libpq-dev \
         libjpeg-dev \
@@ -27,11 +27,12 @@ RUN apt-get update \
         curl \
         libzip-dev \
         unzip \
+        libfreetype6-dev \
         zip \
         nodejs \
     && apt-get clean \
     && pecl install redis \
-    && docker-php-ext-configure gd \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure zip \
     && docker-php-ext-install \
         gd \
@@ -43,6 +44,7 @@ RUN apt-get update \
         bcmath \
         pcntl \
         zip \
+    && docker-php-ext-enable gd \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*;
 

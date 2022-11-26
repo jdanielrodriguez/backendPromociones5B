@@ -27,6 +27,7 @@ class PlayController extends Controller
             return Response::json($returnData, 404);
         }
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -68,6 +69,8 @@ class PlayController extends Controller
             'winObj' => $reward,
             'winOpt' => $opportunity,
         );
+        // send Email
+        $this->createTacoBellReward($opportunity, $reward);
         $returnData = array(
             'status' => 200,
             'msg' => 'Success',
@@ -101,7 +104,7 @@ class PlayController extends Controller
             $dpi = $request->get('dpi');
             $telefono = $request->get('telefono');
             $atms  = ATM::whereRaw("department = ? and (atm = ? or modelo_atm = ?)", [$depto, $atmCode, $atmCode])->first();
-            if(!$atms){
+            if (!$atms) {
                 $returnData = array(
                     'status' => 401,
                     'msg' => 'El numero de Cajero (ATM) no Existe.',
@@ -135,7 +138,7 @@ class PlayController extends Controller
             'msg' => 'Move Saved Error.',
             'obj' => null
         );
-        $isValid = $this->validatePlayer($player, $authCode, $atmCode, $limited);
+        $isValid = $this->validatePlayer($player, $authCode, $atmCode);
         if (!$isValid) {
             $winner = $this->getMyWinner($player);
             $returnObj = array(
@@ -222,14 +225,15 @@ class PlayController extends Controller
         $opportunitiesObj  = $limited ? Opportunity::whereRaw("avaliable = 1 and status = 1")->groupBy('reward')->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)");
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
-        // 4 = 25% posibilidad de ganar
-        $maxRandon = $count * 4;
+        // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
+        $maxRandon = $count * 10;
         $reward = null;
         srand(time());
         $ganador = false;
         // sorteo Random
         $numero_aleatorio = rand(0, $maxRandon);
         $validateRepechaje = $this->validateRepechaje();
+        $dayAvaliable = $this->dayAvaliable();
         foreach ($opportunities as $key => $value) {
             if (!$validateRepechaje && $value->repechaje) {
                 continue;
@@ -239,15 +243,20 @@ class PlayController extends Controller
                     $ganador = true;
                 }
                 // Validacion reward taco bell en departamento totonicapan 21 nunca ganara
-                if($value->reward === 5 && $depto === 21){
+                if ($value->reward === 5 && $depto === 21) {
                     $ganador = false;
+                    continue;
                 }
-                if ($value->avaliable && $ganador) {
+                if ($value->avaliable && $ganador && $dayAvaliable) {
                     $reward  = Rewards::whereRaw("id = ?", $value->reward)->first();
                     if ($reward->avaliable > 0) {
                         $yetAvaliable = true;
                         //TODO validar si ya se dio una oportunidad de este premio el dia de hoy
                         if ($limited) {
+                        }
+                        // Validacion reward taco bell crear imagen antes de enviar ganador
+                        if ($value->reward === 5) {
+                            $yetAvaliable = $this->createTacoBellReward($value, $reward);
                         }
                         if ($yetAvaliable) {
                             $moveObj->points = $value->points;
@@ -301,24 +310,75 @@ class PlayController extends Controller
         return $returnData;
     }
 
-    public function validatePlayer($player, $authCode, $atmCode, $limited)
+    public function validatePlayer($player, $authCode, $atmCode, $limited = true)
     {
         $now = date('Y-m-d H:m:s');
         $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode->id, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
         return $moveObj->count() === 0;
     }
 
-
     public function validateRepechaje()
     {
         $now = date('Y-m-d H:m:s');
-        $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and WEEK(updated_at, 1) = WEEK(?, 1)", [$now]);
+        $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
         return $moveObj->count() === 0;
+    }
+
+    public function dayAvaliable()
+    {
+        $now = date('Y-m-d H:m:s');
+        $moveObj  = Opportunity::whereRaw("avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
+        return $moveObj->count() < 75;
     }
 
     public function getMyWinner($player)
     {
         $moveObj  = Moves::whereRaw("player = ? and winner = 1", $player->id)->first();
         return $moveObj;
+    }
+
+    public function createTacoBellReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            $baseimagen = ImageCreateTrueColor(400, 400);
+            //Cargamos la primera imagen(cabecera)
+            if (file_exists("https://promociones5b.com/backend/public/premios/taco-bell.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/taco-bell.png");
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/taco-bell.png");
+            }
+            //Unimos la primera imagen con la imagen base
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            //Cargamos la segunda imagen(cuerpo)
+            // $ts_viewer = ImageCreateFromPng("https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://promociones5b.com/dashboard/verificacion.php?codigo=" . $objectSee->codigo);
+            //Juntamos la segunda imagen con la imagen base
+            //imagecopymerge($baseimagen, $ts_viewer, 110, 50, 0, 0, 300, 300, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 17, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, 'premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 250, 305, 0, 0, 150, 55, 100);
+            //Mostramos la imagen en el navegador
+            ImagePng($baseimagen, "premios/tacobell/cupon_" . $optObj->code . ".png", 5);
+            //Limpiamos la memoria utilizada con las imagenes
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            $url = "http://localhost/premios/tacobell/cupon_" . $optObj->code . ".png";
+            // echo $url;
+            return true;
+        } catch (Exception $e) {
+            return $e;
+        }
     }
 }
