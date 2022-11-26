@@ -85,6 +85,8 @@ class PlayController extends Controller
                 if ($optObj && $winObj) {
                     if ($winObj && $optObj && $winObj->use_code) {
                         $winImg = $winObj->img . "cupon_" . $optObj->code . ".png";
+                    } else if ($winObj && $optObj && !$winObj->use_code) {
+                        $winImg = $winObj->img;
                     }
                 }
                 $correo->move = $moveObj->id;

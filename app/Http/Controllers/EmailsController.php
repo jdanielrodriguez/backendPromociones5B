@@ -53,12 +53,12 @@ abstract class EmailsController extends Controller
         //Set PHPMailer to use SMTP.
         $mail->isSMTP();
         //Set SMTP host name                          
-        $mail->Host = "mail.codeguate.com";
+        $mail->Host = env("EMAIL_HOST", "mail.codeguate.com");
         //Set this to true if SMTP host requires authentication to send email
         $mail->SMTPAuth = true;
         //Provide username and password     
-        $mail->Username = "";
-        $mail->Password = "";
+        $mail->Username = env("EMAIL_USERNAME", "no-reply@codeguate.com");
+        $mail->Password = env("EMAIL_PASS", "PASSTEST");
         //If SMTP requires TLS encryption then set it
         $mail->SMTPSecure = "ssl";
         //Set TCP port to connect to
@@ -97,8 +97,10 @@ abstract class EmailsController extends Controller
         if (strlen($telefono) == 8) {
             $telefono = '502' . trim($telefono);
         }
+        $apiKey = env("WHATSAPP_KEY", "APY_KEY");
+
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://panel.rapiwha.com/send_message.php?apikey={api_key}&number=" . $telefono . "&text=" . $imagen,
+            CURLOPT_URL => "https://panel.rapiwha.com/send_message.php?apikey=".$apiKey."&number=" . $telefono . "&text=" . $imagen,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
