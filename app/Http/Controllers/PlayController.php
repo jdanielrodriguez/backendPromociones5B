@@ -70,15 +70,12 @@ class PlayController extends Controller
             'winObj' => $reward,
             'winOpt' => $opportunity,
         );
+        // Create Image
+        if ($reward && $reward->id) {
+            $this->createSpecialReward($opportunity, $reward);
+        }
+
         // send Email
-        if ($reward && $reward->id === 5) {
-            $this->createTacoBellReward($opportunity, $reward);
-        }
-
-        if ($reward && $reward->id === 6) {
-            $this->createPromericaReward($opportunity, $reward);
-        }
-
         $emailExist = Correos::whereRaw("player = ? and move = ?", [$player->id, $moveObj->id])->count();
         if ($winner === 1 && $emailExist === 0) {
             try {
@@ -365,12 +362,16 @@ class PlayController extends Controller
     public function createSpecialReward($opportunity, $reward)
     {
         $yetAvaliable = false;
-        if ($opportunity->reward === 5) {
+        if ($reward && $reward->id === 5) {
             $yetAvaliable = $this->createTacoBellReward($opportunity, $reward);
         }
 
-        if ($opportunity->reward === 6) {
+        if ($reward && $reward->id === 6) {
             $yetAvaliable = $this->createPromericaReward($opportunity, $reward);
+        }
+
+        if ($reward && $reward->id === 7) {
+            $yetAvaliable = $this->createCamperoReward($opportunity, $reward);
         }
 
         return $yetAvaliable;
@@ -467,6 +468,73 @@ class PlayController extends Controller
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 247, 317, 0, 0, 150, 55, 100);
             ImagePng($baseimagen, "./premios/promerica/cupon_" . $optObj->code . ".png", 5);
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function createCamperoReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            //Cargamos la primera imagen(cabecera)
+            if (file_exists("https://promociones5b.com/backend/public/premios/promerica.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                if ($optObj->points === 5) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 10) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 15) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 20) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 25) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                if ($optObj->points === 5) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 10) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 15) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 20) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+                if ($optObj->points === 25) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                }
+            }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 11, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 247, 317, 0, 0, 150, 55, 100);
+            ImagePng($baseimagen, "./premios/campero/cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");

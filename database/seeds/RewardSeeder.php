@@ -472,5 +472,50 @@ class RewardSeeder extends Seeder
                 'updated_at'        => $datetime->format('Y-m-d H:i:s')
             ]);
         }
+
+
+
+        $avaliableCampero = 1180;
+        $serie = 1;
+        DB::table('reward')->insert([
+            'id'                => 7,
+            'name'              => 'Campero.',
+            'description'       => 'Campero',
+            'lan'               => 'es',
+            'link'              => null,
+            'img'               => 'https://promociones5b.com/backend/public/premios/campero/',
+            'avaliable'         => $avaliableCampero,
+            'user'              => null,
+            'use_code'          => true,
+            'status'            => 1,
+            'created_at'        => date('Y-m-d H:m:s'),
+            'updated_at'        => date('Y-m-d H:m:s')
+        ]);
+
+        for ($i = 0; $i < $avaliableCampero; $i++) {
+            $uuid = "D04" . str_pad($serie, 6, "0", STR_PAD_LEFT);
+            $total = $this->getCamperoValue($serie);
+            DB::table('opportunity')->insert([
+                'random_position'   => rand(0, $avaliable * 4),
+                'points'            => $total,
+                'avaliable'         => 1,
+                'department'        => null,
+                'img'               => 'cupon_' . $uuid . '.png',
+                'code'              => $uuid,
+                'reward'            => 7,
+                'status'            => 1,
+                'created_at'        => date('Y-m-d H:m:s'),
+                'updated_at'        => $datetime->format('Y-m-d H:i:s')
+            ]);
+            $serie++;
+        }
+    }
+
+    private function getCamperoValue($index){
+        if($index >= 1 && $index <= 472) return 5;
+        if($index >= 471 && $index <= 767) return 10;
+        if($index >= 766 && $index <= 1003) return 15;
+        if($index >= 1002 && $index <= 1062) return 20;
+        if($index >= 1061 && $index <= 1180) return 25;
     }
 }
