@@ -304,9 +304,8 @@ class PlayController extends Controller
                         //TODO validar si ya se dio una oportunidad de este premio el dia de hoy
                         if ($limited) {
                         }
-                        // Validacion reward taco bell crear imagen antes de enviar ganador
+                        // Validacion reward taco bell, promerica y campero crear imagen antes de enviar ganador
                         $yetAvaliable = $this->createSpecialReward($value, $reward);
-
                         if ($yetAvaliable) {
                             $moveObj->points = $value->points;
                             $moveObj->winner = 1;
