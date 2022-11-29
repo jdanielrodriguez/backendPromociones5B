@@ -490,39 +490,39 @@ class PlayController extends Controller
                 return false;
             }
             //Cargamos la primera imagen(cabecera)
-            if (file_exists("https://promociones5b.com/backend/public/premios/promerica.png")) {
-                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+            if (file_exists("https://promociones5b.com/backend/public/premios/campero5.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero5.png");
                 if ($optObj->points === 5) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero5.png");
                 }
                 if ($optObj->points === 10) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero10.png");
                 }
                 if ($optObj->points === 15) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero15.png");
                 }
                 if ($optObj->points === 20) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero20.png");
                 }
                 if ($optObj->points === 25) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero25.png");
                 }
             } else {
-                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero5.png");
                 if ($optObj->points === 5) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero5.png");
                 }
                 if ($optObj->points === 10) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero10.png");
                 }
                 if ($optObj->points === 15) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero15.png");
                 }
                 if ($optObj->points === 20) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero20.png");
                 }
                 if ($optObj->points === 25) {
-                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/promerica.png");
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/campero25.png");
                 }
             }
             $imgBase = new TextToImage;
@@ -532,7 +532,7 @@ class PlayController extends Controller
             $img->createImage(strtoupper($optObj->code), 11, 150, 60);
             $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
-            imagecopymerge($baseimagen, $textImg, 247, 317, 0, 0, 150, 55, 100);
+            imagecopymerge($baseimagen, $textImg, 247, 287, 0, 0, 150, 55, 100);
             ImagePng($baseimagen, "./premios/campero/cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
