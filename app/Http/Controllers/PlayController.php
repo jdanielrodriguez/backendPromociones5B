@@ -264,7 +264,7 @@ class PlayController extends Controller
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = $count * 10;
+        $maxRandon = $count * 5;
         $reward = null;
         srand(time());
         $ganador = false;
@@ -285,14 +285,16 @@ class PlayController extends Controller
                     $ganador = false;
                     continue;
                 }
+                // Validacion reward promerica para que solo deje en departamento Guatemala 7  y solo deje dar 2 al dia
                 if ($value->reward === 6) {
-                    if ($depto !== 7) {
-                        $ganador = false;
-                        continue;
-                    }
-                    $now = date('Y-m-d H:m:s');
-                    $promericaAvaliable = Opportunity::whereRaw("reward = ? and avaliable = 0 and DAY(updated_at) = DAY(?)", [$value->reward, $now])->count();
-                    if ($promericaAvaliable === 2) {
+                    if ($depto === 7) {
+                        $now = date('Y-m-d H:m:s');
+                        $promericaAvaliable = Opportunity::whereRaw("reward = ? and avaliable = 0 and DAY(updated_at) = DAY(?)", [$value->reward, $now])->count();
+                        if ($promericaAvaliable >= 2) {
+                            $ganador = false;
+                            continue;
+                        }
+                    } else {
                         $ganador = false;
                         continue;
                     }
