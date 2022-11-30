@@ -96,6 +96,7 @@ Route::get('play/{move_id}', "PlayController@play");
 Route::post('register', "PlayController@register");
 Route::get('departments', "PlayController@getDepartments");
 Route::get('winners', "MovesController@winners");
+Route::get('rewards', "MovesController@winnersByReward");
 Route::resource('moves', 'MovesController');
 
 Route::get('filter/{id}/comentarios/{state}', "ComentariosController@getThisByFilter");

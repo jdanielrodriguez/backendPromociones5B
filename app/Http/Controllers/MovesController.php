@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Moves;
+use App\Opportunity;
 use Response;
 
 class MovesController extends Controller
@@ -28,6 +29,18 @@ class MovesController extends Controller
     public function winners()
     {
         $arrayMoves = Moves::whereRaw('winner=1')->with(['players', 'winObj', 'departamento']);
+        $returnData = array(
+            'status' => 200,
+            'message' => 'Todos los registros Ganadores.',
+            'count' => $arrayMoves->count(),
+            'moves' => $arrayMoves->get()
+        );
+        return Response::json($returnData, 200);
+    }
+
+    public function winnersByReward()
+    {
+        $arrayMoves = Opportunity::selectRaw('*,count(*)')->whereRaw('avaliable=0')->groupBy('reward')->with('premio');
         $returnData = array(
             'status' => 200,
             'message' => 'Todos los registros Ganadores.',
