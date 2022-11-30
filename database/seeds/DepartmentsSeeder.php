@@ -398,6 +398,30 @@ class DepartmentsSeeder extends Seeder
                 'modelo_atm' => '6622'
             ],
             [
+                'atm' => '0057',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0057'
+            ],
+            [
+                'atm' => '0630',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0630'
+            ],
+            [
                 'atm' => '59',
                 'ubicacion' => 'Puma Super7',
                 'direccion' => 'Calzada Roosevelt Km. 15, Zona 2 de Mixco',
