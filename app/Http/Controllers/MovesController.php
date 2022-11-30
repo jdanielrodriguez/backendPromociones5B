@@ -40,12 +40,16 @@ class MovesController extends Controller
 
     public function winnersByReward()
     {
-        $arrayMoves = Opportunity::selectRaw('*,count(*)')->whereRaw('avaliable=0')->groupBy('reward')->with('premio');
+        $arrayMoves = Opportunity::selectRaw('reward,count(*) total')->whereRaw('avaliable=0')->groupBy('reward')->with('premio')->get();
+        $total = 0;
+        foreach ($arrayMoves as $value) {
+            $total += $value->total;
+        }
         $returnData = array(
             'status' => 200,
             'message' => 'Todos los registros Ganadores.',
-            'count' => $arrayMoves->count(),
-            'moves' => $arrayMoves->get()
+            'count' => $total,
+            'moves' => $arrayMoves
         );
         return Response::json($returnData, 200);
     }
