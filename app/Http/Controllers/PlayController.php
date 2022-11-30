@@ -375,6 +375,10 @@ class PlayController extends Controller
             $yetAvaliable = $this->createCamperoReward($opportunity, $reward);
         }
 
+        if ($reward && $reward->id === 8) {
+            $yetAvaliable = $this->createBanruralReward($opportunity, $reward);
+        }
+
         return $yetAvaliable;
     }
 
@@ -536,6 +540,70 @@ class PlayController extends Controller
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 247, 287, 0, 0, 150, 55, 100);
             ImagePng($baseimagen, "./premios/campero/cupon_" . $optObj->code . ".png", 5);
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function createBanruralReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            //Cargamos la primera imagen(cabecera)
+            $caperta = '';
+            if (file_exists("https://promociones5b.com/backend/public/premios/banrural1D.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural1D.png");
+                $caperta = '1day/';
+                if ($optObj->points === 1) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural1D.png");
+                    $caperta = '1day/';
+                }
+                if ($optObj->points === 2) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural2D.png");
+                    $caperta = '2day/';
+                }
+                if ($optObj->points === 7) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural7D.png");
+                    $caperta = '7day/';
+                }
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural1D.png");
+                $caperta = '1day/';
+                if ($optObj->points === 1) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural1D.png");
+                    $caperta = '1day/';
+                }
+                if ($optObj->points === 2) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural2D.png");
+                    $caperta = '2day/';
+                }
+                if ($optObj->points === 7) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/banrural7D.png");
+                    $caperta = '7day/';
+                }
+            }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 8, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 237, 318, 0, 0, 150, 55, 100);
+            ImagePng($baseimagen, "./premios/banrural/". $caperta ."cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
