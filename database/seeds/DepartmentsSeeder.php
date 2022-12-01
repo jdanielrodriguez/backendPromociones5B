@@ -32893,6 +32893,18 @@ class DepartmentsSeeder extends Seeder
                 'marca_atm' => 'NCR',
                 'modelo_atm' => '0257'
             ],
+            [
+                'atm' => '0001',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0001'
+            ],
         ];
 
         foreach ($atms as $ix => $atm) {
