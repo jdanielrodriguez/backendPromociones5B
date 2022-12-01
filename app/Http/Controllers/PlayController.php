@@ -260,7 +260,7 @@ class PlayController extends Controller
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
         $moveObj->department = $depto;
-        $opportunitiesObj  = $limited ? Opportunity::whereRaw("avaliable = 1 and status = 1")->groupBy('reward')->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)");
+        $opportunitiesObj  = $limited ? Opportunity::whereRaw("avaliable = 1 and status = 1")->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)")->groupBy('reward');
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
