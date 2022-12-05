@@ -363,6 +363,10 @@ class PlayController extends Controller
     public function createSpecialReward($opportunity, $reward)
     {
         $yetAvaliable = false;
+        if ($reward && ($reward->id === 1 || $reward->id === 2)) {
+            $yetAvaliable = $this->createSherwinReward($opportunity, $reward);
+        }
+
         if ($reward && $reward->id === 5) {
             $yetAvaliable = $this->createTacoBellReward($opportunity, $reward);
         }
@@ -604,6 +608,51 @@ class PlayController extends Controller
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 237, 318, 0, 0, 150, 55, 100);
             ImagePng($baseimagen, "./premios/banrural/". $caperta ."cupon_" . $optObj->code . ".png", 5);
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+
+
+    public function createSherwinReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            //Cargamos la primera imagen(cabecera)
+            if (file_exists("https://promociones5b.com/backend/public/premios/sherwin-25.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/sherwin-25.png");
+                if ($optObj->points === 35) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/sherwin-35.png");
+                }
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/sherwin-25.png");
+                if ($optObj->points === 35) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/sherwin-35.png");
+                }
+            }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 12, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 220, 130, 0, 0, 150, 55, 100);
+            ImagePng($baseimagen, "./premios/sherwin/cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
