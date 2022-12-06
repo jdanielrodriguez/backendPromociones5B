@@ -264,7 +264,7 @@ class PlayController extends Controller
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = $count * 5;
+        $maxRandon = (int) round($count * 2.5);
         $reward = null;
         srand(time());
         $ganador = false;

@@ -32894,6 +32894,30 @@ class DepartmentsSeeder extends Seeder
                 'modelo_atm' => '0257'
             ],
             [
+                'atm' => '0025',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0025'
+            ],
+            [
+                'atm' => '0122',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0122'
+            ],
+            [
                 'atm' => '0001',
                 'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
                 'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
@@ -32904,6 +32928,18 @@ class DepartmentsSeeder extends Seeder
                 't_ubicacion' => 'Agencia',
                 'marca_atm' => 'NCR',
                 'modelo_atm' => '0001'
+            ],
+            [
+                'atm' => '0002',
+                'ubicacion' => 'AGROMERCANTIL C.C. Zona 4 (5B)',
+                'direccion' => '6 Av. 0-60, Centro Comercial Zona 4',
+                'propietario' => 'BAM',
+                'tipo' => 'M',
+                'department' => 'Guatemala',
+                'z_ubicacion' => 'ZONA 4, Guatemala',
+                't_ubicacion' => 'Agencia',
+                'marca_atm' => 'NCR',
+                'modelo_atm' => '0002'
             ],
         ];
 
