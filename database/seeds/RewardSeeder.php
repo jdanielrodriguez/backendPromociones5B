@@ -21,21 +21,25 @@ class RewardSeeder extends Seeder
             'description'       => 'Descuento de Q25',
             'lan'               => 'es',
             'link'              => null,
-            'img'               => 'https://promociones5b.com/backend/public/premios/sherwin-25.jpg',
+            'img'               => 'https://promociones5b.com/backend/public/premios/',
             'avaliable'         => $avaliableSherwinWilliams25,
             'user'              => null,
-            'use_code'          => false,
+            'use_code'          => true,
             'status'            => 1,
             'created_at'        => date('Y-m-d H:m:s'),
             'updated_at'        => date('Y-m-d H:m:s')
         ]);
-
+        $totalSherwin = 0;
         for ($i = 0; $i < $avaliableSherwinWilliams25; $i++) {
+            $totalSherwin = $totalSherwin + $i + 1;
+            $uuid = str_pad($totalSherwin, 6, "0", STR_PAD_LEFT);
             DB::table('opportunity')->insert([
+                'id'                => $totalSherwin,
                 'random_position'   => rand(0, $avaliable * 4),
                 'points'            => 25,
                 'avaliable'         => 1,
                 'department'        => null,
+                'code'              => $uuid,
                 'reward'            => 1,
                 'status'            => 1,
                 'created_at'        => date('Y-m-d H:m:s'),
@@ -50,9 +54,9 @@ class RewardSeeder extends Seeder
             'description'       => 'Descuento de Q35',
             'lan'               => 'es',
             'link'              => null,
-            'img'               => 'https://promociones5b.com/backend/public/premios/sherwin-35.jpg',
+            'img'               => 'https://promociones5b.com/backend/public/premios/',
             'avaliable'         => $avaliableSherwinWilliams35,
-            'use_code'          => false,
+            'use_code'          => true,
             'user'              => null,
             'status'            => 1,
             'created_at'        => date('Y-m-d H:m:s'),
@@ -60,10 +64,14 @@ class RewardSeeder extends Seeder
         ]);
 
         for ($i = 0; $i < $avaliableSherwinWilliams35; $i++) {
+            $totalSherwin = $totalSherwin + $i + 1;
+            $uuid = str_pad($totalSherwin, 6, "0", STR_PAD_LEFT);
             DB::table('opportunity')->insert([
+                'id'                => $totalSherwin,
                 'random_position'   => rand(0, $avaliable * 4),
                 'points'            => 35,
                 'avaliable'         => 1,
+                'code'              => $uuid,
                 'department'        => null,
                 'reward'            => 2,
                 'status'            => 1,
