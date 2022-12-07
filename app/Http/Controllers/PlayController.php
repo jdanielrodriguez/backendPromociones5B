@@ -202,7 +202,7 @@ class PlayController extends Controller
             );
             return $returnData;
         }
-        $moveObj  = Moves::whereRaw("auth = ? or atm = ?", [$authCode, $atmCode->id]);
+        $moveObj  = Moves::whereRaw("auth = ? and atm = ?", [$authCode, $atmCode->id]);
         $move_exists  = $moveObj->count();
         if ($move_exists > 0) {
             $moveObj  = $moveObj->first();
@@ -224,9 +224,10 @@ class PlayController extends Controller
                 );
                 $returnData = array(
                     'status' => 404,
-                    'msg' => 'Move Already Exist.',
+                    'msg' => 'El codigo de autenticacion ya fue utilizado.',
                     'obj' => $returnObj
                 );
+                return $returnData;
             } else {
                 $returnObj = array(
                     'id' => $moveObj->id,
@@ -245,9 +246,10 @@ class PlayController extends Controller
                 );
                 $returnData = array(
                     'status' => 400,
-                    'msg' => 'Move Already Exist with other player.',
+                    'msg' => 'El codigo de autenticacion ya fue utilizado por otro usuario.',
                     'obj' => $returnObj
                 );
+                return $returnData;
             }
         }
 
@@ -260,24 +262,28 @@ class PlayController extends Controller
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
         $moveObj->department = $depto;
-        $opportunitiesObj  = $limited ? Opportunity::whereRaw("avaliable = 1 and status = 1")->groupBy('reward') : Opportunity::whereRaw("(avaliable = 1 and status = 1)")->groupBy('reward');
+        $opportunitiesObj  = Opportunity::whereRaw("(avaliable = 1 and status = 1)")->orderBy('repechaje', 'desc')->orderBy('id', 'asc');
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = (int) round($count * 2.5);
+        $maxRandon = (int) round($count * 1.5);
         $reward = null;
         srand(time());
         $ganador = false;
         // sorteo Random
-        $numero_aleatorio = rand(0, $maxRandon);
+        $numero_aleatorio = rand(0 - $maxRandon, $maxRandon);
         $validateRepechaje = $this->validateRepechaje();
         $dayAvaliable = $this->dayAvaliable();
         foreach ($opportunities as $key => $value) {
-            if (!$validateRepechaje && $value->repechaje) {
-                continue;
+            if ($value->repechaje) {
+                if (!$validateRepechaje) {
+                    continue;
+                } else {
+                    $ganador = true;
+                }
             }
             if ($value->department === $depto || $value->department === null) {
-                if ($numero_aleatorio === $key) {
+                if ($numero_aleatorio >= 0 && $numero_aleatorio === $key) {
                     $ganador = true;
                 }
                 // Validacion reward taco bell en departamento totonicapan 21 nunca ganara
@@ -342,6 +348,7 @@ class PlayController extends Controller
             'atm' => $atmCode->id,
             'move_id' => $moveObj->id,
             'points' => $moveObj->points,
+            'repechaje' => $moveObj->repechaje,
             'filePath' => $attachment_url,
             'departamento' => $depto,
             'winner' => $moveObj->winner,
@@ -362,7 +369,7 @@ class PlayController extends Controller
 
     public function createSpecialReward($opportunity, $reward)
     {
-        $yetAvaliable = false;
+        $yetAvaliable = true;
         if ($reward && ($reward->id === 1 || $reward->id === 2)) {
             $yetAvaliable = $this->createSherwinReward($opportunity, $reward);
         }
@@ -397,7 +404,7 @@ class PlayController extends Controller
     {
         $now = date('Y-m-d H:m:s');
         $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
-        return $moveObj->count() === 0;
+        return $moveObj->count() < 2;
     }
 
     public function dayAvaliable()
@@ -607,7 +614,7 @@ class PlayController extends Controller
             $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 237, 318, 0, 0, 150, 55, 100);
-            ImagePng($baseimagen, "./premios/banrural/". $caperta ."cupon_" . $optObj->code . ".png", 5);
+            ImagePng($baseimagen, "./premios/banrural/" . $caperta . "cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
