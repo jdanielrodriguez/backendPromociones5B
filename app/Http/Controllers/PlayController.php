@@ -279,7 +279,9 @@ class PlayController extends Controller
                 if (!$validateRepechaje) {
                     continue;
                 } else {
-                    $ganador = true;
+                    if(!$this->yaTieneRepechaje($player)){
+                        $ganador = true;
+                    }
                 }
             }
             if ($value->department === $depto || $value->department === null) {
@@ -405,6 +407,12 @@ class PlayController extends Controller
         $now = date('Y-m-d H:m:s');
         $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
         return $moveObj->count() < 2;
+    }
+
+    public function yaTieneRepechaje($player)
+    {
+        $moveObj  = Moves::whereRaw("repechaje = 1 and player = ?", [$player->id]);
+        return $moveObj->count() > 0;
     }
 
     public function dayAvaliable()
