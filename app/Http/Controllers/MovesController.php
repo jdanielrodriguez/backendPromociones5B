@@ -16,10 +16,31 @@ class MovesController extends Controller
      */
     public function index()
     {
-        $arrayMoves = Moves::with(['players', 'winObj', 'departamento']);
         $returnData = array(
             'status' => 200,
             'message' => 'Todos los registros.',
+            'count' => Moves::count(),
+            'moves' => Moves::get()
+        );
+        return Response::json($returnData, 200);
+    }
+
+    public function moverCount()
+    {
+        $returnData = array(
+            'status' => 200,
+            'message' => 'Conteo de todos los registros.',
+            'count' => Moves::count()
+        );
+        return Response::json($returnData, 200);
+    }
+
+    public function moverDetail()
+    {
+        $arrayMoves = Moves::with(['players', 'winObj', 'departamento']);
+        $returnData = array(
+            'status' => 200,
+            'message' => 'Todos los registros con Detalles.',
             'count' => $arrayMoves->count(),
             'moves' => $arrayMoves->get()
         );

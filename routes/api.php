@@ -99,6 +99,9 @@ Route::get('winners', "MovesController@winners");
 Route::get('rewards', "MovesController@winnersByReward");
 Route::resource('moves', 'MovesController');
 
+Route::get('count/moves', "MovesController@moverCount");
+Route::get('detail/moves', "MovesController@moverDetail");
+
 Route::get('filter/{id}/comentarios/{state}', "ComentariosController@getThisByFilter");
 
 Route::get('list', 'PagosController@info');
