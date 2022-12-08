@@ -47,6 +47,26 @@ class MovesController extends Controller
         return Response::json($returnData, 200);
     }
 
+    public function forbidden()
+    {
+        $arrayMoves = Moves::whereRaw('department = 21')->with(['players', 'winObj', 'departamento']);
+        $newArrayMoves = $arrayMoves->get();
+        $auxArrayMoves = [];
+        foreach ($newArrayMoves as $key => $value) {
+            $rewardId = Opportunity::whereRaw('reward = 5 and id = ?',[$value['opportunity']])->first();
+            if($rewardId){
+                $auxArrayMoves[] = $value;
+            }
+        }
+        $returnData = array(
+            'status' => 200,
+            'message' => 'Todos los registros con Detalles.',
+            'count' => count($auxArrayMoves),
+            'moves' => $auxArrayMoves
+        );
+        return Response::json($returnData, 200);
+    }
+
     public function winners()
     {
         $arrayMoves = Moves::whereRaw('winner=1')->with(['players', 'winObj', 'departamento']);

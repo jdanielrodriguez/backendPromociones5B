@@ -289,9 +289,11 @@ class PlayController extends Controller
                     $ganador = true;
                 }
                 // Validacion reward taco bell en departamento totonicapan 21 nunca ganara
-                if ($value->reward === 5 && $depto === 21) {
-                    $ganador = false;
-                    continue;
+                if ($value->reward === 5) {
+                    if($depto === 21){
+                        $ganador = false;
+                        continue;
+                    }
                 }
                 // Validacion reward promerica para que solo deje en departamento Guatemala 7  y solo deje dar 2 al dia
                 if ($value->reward === 6) {
