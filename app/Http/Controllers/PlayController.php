@@ -262,16 +262,16 @@ class PlayController extends Controller
         $moveObj->winner = 0;
         $moveObj->player = $player->id;
         $moveObj->department = $depto;
-        $opportunitiesObj  = Opportunity::whereRaw("(avaliable = 1 and status = 1)")->orderBy('repechaje', 'desc')->orderBy('id', 'asc');
+        $opportunitiesObj  = Opportunity::whereRaw("avaliable = 1 and status = 1")->orderBy('repechaje', 'desc')->orderBy('id', 'asc');
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = (int) round($count * 1);
+        $maxRandon = (int) round($count);
         $reward = null;
         srand(time());
         $ganador = false;
         // sorteo Random
-        $numero_aleatorio = rand(0, $maxRandon);
+        $numero_aleatorio = rand(0, $maxRandon - 1);
         $validateRepechaje = $this->validateRepechaje();
         $dayAvaliable = $this->dayAvaliable();
         foreach ($opportunities as $key => $value) {
