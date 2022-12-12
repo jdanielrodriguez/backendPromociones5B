@@ -266,12 +266,12 @@ class PlayController extends Controller
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = (int) round($count * 1.5);
+        $maxRandon = (int) round($count * 1);
         $reward = null;
         srand(time());
         $ganador = false;
         // sorteo Random
-        $numero_aleatorio = rand(0 - $maxRandon, $maxRandon);
+        $numero_aleatorio = rand(0, $maxRandon);
         $validateRepechaje = $this->validateRepechaje();
         $dayAvaliable = $this->dayAvaliable();
         foreach ($opportunities as $key => $value) {
@@ -394,13 +394,17 @@ class PlayController extends Controller
             $yetAvaliable = $this->createBanruralReward($opportunity, $reward);
         }
 
+        if ($reward && $reward->id === 9) {
+            $yetAvaliable = $this->createTigoReward($opportunity, $reward);
+        }
+
         return $yetAvaliable;
     }
 
     public function validatePlayer($player, $authCode, $atmCode, $limited = true)
     {
         $now = date('Y-m-d H:m:s');
-        $moveObj  = $limited ? Moves::whereRaw("player = ? and auth = ? and atm = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $authCode, $atmCode->id, $now]) : Moves::whereRaw("player = ? and winner = 1 and MONTH(created_at) = MONTH(?)", [$player->id, $now]);
+        $moveObj  = Moves::whereRaw("player = ? and winner = 1", [$player->id]);
         return $moveObj->count() === 0;
     }
 
@@ -670,6 +674,70 @@ class PlayController extends Controller
             $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
             imagecopymerge($baseimagen, $textImg, 220, 130, 0, 0, 150, 55, 100);
             ImagePng($baseimagen, "./premios/sherwin/cupon_" . $optObj->code . ".png", 5);
+            ImageDestroy($logo);
+            $img->imageDestroy();
+            unlink("./premios/textos/texto_" . $optObj->code . ".png");
+            ImageDestroy($baseimagen);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function createTigoReward($opportunity, $reward)
+    {
+        try {
+            $winObj = $reward;
+            $optObj = $opportunity;
+            if ($optObj && $winObj) {
+                if ($winObj && $optObj && $winObj->use_code) {
+                    // $winObj->img = $winObj->img . "cupon_" . $optObj->code . ".png";
+                }
+            } else {
+                return false;
+            }
+            //Cargamos la primera imagen(cabecera)
+            $caperta = '';
+            if (file_exists("https://promociones5b.com/backend/public/premios/tigo1.png")) {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo1.png");
+                $caperta = '1day/';
+                if ($optObj->points === 1) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo1.png");
+                    $caperta = '1day/';
+                }
+                if ($optObj->points === 2) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo2.png");
+                    $caperta = '2day/';
+                }
+                if ($optObj->points === 7) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo7.png");
+                    $caperta = '7day/';
+                }
+            } else {
+                $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo1.png");
+                $caperta = '1day/';
+                if ($optObj->points === 1) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo1.png");
+                    $caperta = '1day/';
+                }
+                if ($optObj->points === 2) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo2.png");
+                    $caperta = '2day/';
+                }
+                if ($optObj->points === 7) {
+                    $logo = ImageCreateFromPng("https://promociones5b.com/backend/public/premios/tigo7.png");
+                    $caperta = '7day/';
+                }
+            }
+            $imgBase = new TextToImage;
+            $baseimagen = $imgBase->createImageBase();
+            imagecopymerge($baseimagen, $logo, 0, 0, 0, 0, 400, 400, 100);
+            $img = new TextToImage;
+            $img->createImage(strtoupper($optObj->code), 8, 150, 60);
+            $img->saveAsPng('texto_' . $optObj->code, './premios/textos/');
+            $textImg = ImageCreateFromPng("premios/textos/texto_" . $optObj->code . ".png");
+            imagecopymerge($baseimagen, $textImg, 237, 318, 0, 0, 150, 55, 100);
+            ImagePng($baseimagen, "./premios/tigo/" . $caperta . "cupon_" . $optObj->code . ".png", 5);
             ImageDestroy($logo);
             $img->imageDestroy();
             unlink("./premios/textos/texto_" . $optObj->code . ".png");
