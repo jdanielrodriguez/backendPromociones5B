@@ -525,8 +525,8 @@ class BanruralSeeder extends Seeder
         '7218760245212729',
         '7585984589426568',
         '7068760560061301'];
-        
         $avaliableBanrural1D = count($Day1);
+        
         $Day2 = [
         '2412474205087504',
         '2214702004696885',
@@ -1028,8 +1028,8 @@ class BanruralSeeder extends Seeder
         '2876410583931770',
         '2060634396736714',
         '2536831858684274'];
-        
         $avaliableBanrural2D = count($Day2);
+
         $Day7 = [
         '4509257578552626',
         '4866777588973982',
@@ -1166,8 +1166,8 @@ class BanruralSeeder extends Seeder
         '4181082191309350',
         '4899872624181540',
         '4935485999879624'];
-        
         $avaliableBanrural7D = count($Day7);
+
         DB::table('reward')->insert([
             'id'                => 8,
             'name'              => 'Banrural.',
