@@ -266,17 +266,23 @@ class PlayController extends Controller
         $opportunities = $opportunitiesObj->get();
         $count = count($opportunities);
         // 4 = 25% posibilidad de ganar, 5 = 20, 10 = 10
-        $maxRandon = (int) round($count);
-        $reward = null;
+        $validateRepechaje = $this->validateRepechaje();
         srand(time());
+        $maxRandon = (int) round($count);
+        $numero_aleatorio = rand(0, $maxRandon);
+        if(!$validateRepechaje && $numero_aleatorio === 3){
+            while($numero_aleatorio === 3){
+                $numero_aleatorio = rand(0, $maxRandon);
+            }
+        }
+        $reward = null;
         $ganador = false;
         // sorteo Random
-        $numero_aleatorio = rand(0, $maxRandon - 1);
-        $validateRepechaje = $this->validateRepechaje();
         $dayAvaliable = $this->dayAvaliable();
         foreach ($opportunities as $key => $value) {
             if ($value->repechaje) {
                 if (!$validateRepechaje) {
+                    $numero_aleatorio++;
                     continue;
                 } else {
                     if(!$this->yaTieneRepechaje($player)){
@@ -292,6 +298,7 @@ class PlayController extends Controller
                 if ($value->reward === 5) {
                     if($depto === 21){
                         $ganador = false;
+                        $numero_aleatorio++;
                         continue;
                     }
                 }
@@ -300,12 +307,14 @@ class PlayController extends Controller
                     if ($depto === 7) {
                         $now = date('Y-m-d H:m:s');
                         $promericaAvaliable = Opportunity::whereRaw("reward = ? and avaliable = 0 and DAY(updated_at) = DAY(?)", [$value->reward, $now])->count();
-                        if ($promericaAvaliable >= 2) {
+                        if ($promericaAvaliable >= 4) {
                             $ganador = false;
+                            $numero_aleatorio++;
                             continue;
                         }
                     } else {
                         $ganador = false;
+                        $numero_aleatorio++;
                         continue;
                     }
                 }
@@ -412,7 +421,7 @@ class PlayController extends Controller
     {
         $now = date('Y-m-d H:m:s');
         $moveObj  = Opportunity::whereRaw("repechaje = 1 and avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
-        return $moveObj->count() < 2;
+        return $moveObj->count() < 3;
     }
 
     public function yaTieneRepechaje($player)
@@ -425,7 +434,7 @@ class PlayController extends Controller
     {
         $now = date('Y-m-d H:m:s');
         $moveObj  = Opportunity::whereRaw("avaliable = 0 and DAY(updated_at) = DAY(?)", [$now]);
-        return $moveObj->count() < 75;
+        return $moveObj->count() < 10000000;
     }
 
     public function getMyWinner($player)
