@@ -31,7 +31,7 @@ class RewardSeeder extends Seeder
         ]);
         $totalSherwin = 0;
         for ($i = 0; $i < $avaliableSherwinWilliams25; $i++) {
-            $totalSherwin = $totalSherwin + $i + 1;
+            $totalSherwin++;
             $uuid = str_pad($totalSherwin, 6, "0", STR_PAD_LEFT);
             DB::table('opportunity')->insert([
                 'id'                => $totalSherwin,
@@ -64,7 +64,7 @@ class RewardSeeder extends Seeder
         ]);
 
         for ($i = 0; $i < $avaliableSherwinWilliams35; $i++) {
-            $totalSherwin = $totalSherwin + $i + 1;
+            $totalSherwin++;
             $uuid = str_pad($totalSherwin, 6, "0", STR_PAD_LEFT);
             DB::table('opportunity')->insert([
                 'id'                => $totalSherwin,
