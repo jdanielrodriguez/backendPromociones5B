@@ -20,4 +20,8 @@ class Moves extends Model
     {
         return $this->hasOne('App\Departaments', 'id', 'department');
     }
+    public function atms()
+    {
+        return $this->hasOne('App\ATM', 'id', 'atm');
+    }
 }

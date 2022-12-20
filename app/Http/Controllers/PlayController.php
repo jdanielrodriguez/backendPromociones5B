@@ -55,12 +55,12 @@ class PlayController extends Controller
             $reward  = Rewards::whereRaw("id = ?", $opportunity->reward)->first();
         }
         $returnObj = array(
-            'id' => $player->id,
-            'name' => $player->name,
-            'dpi' => $player->dpi,
-            'email' => $player->email,
+            'id' => $player['id'],
+            'name' => $player['name'],
+            'dpi' => $player['dpi'],
+            'email' => $player['email'],
             'move_id' => $moveObj->id,
-            'phone' => $player->phone,
+            'phone' => $player['phone'],
             'auth' => $moveObj->auth,
             'atm' => $moveObj->atm,
             'file' => $moveObj->file,
@@ -76,7 +76,7 @@ class PlayController extends Controller
         }
 
         // send Email
-        $emailExist = Correos::whereRaw("player = ? and move = ?", [$player->id, $moveObj->id])->count();
+        $emailExist = Correos::whereRaw("player = ? and move = ?", [$player['id'], $moveObj->id])->count();
         if ($winner === 1 && $emailExist === 0) {
             try {
                 EmailsController::enviarReward($returnObj);
@@ -92,9 +92,9 @@ class PlayController extends Controller
                     }
                 }
                 $correo->move = $moveObj->id;
-                $correo->player = $player->id;
+                $correo->player = $player['id'];
                 $correo->adjunto = $winImg;
-                $correo->correo = $player->email;
+                $correo->correo = $player['email'];
                 $correo->estado = 1;
                 $correo->whatsapp = 1;
                 $correo->recibido = date('Y-m-d H:m:s');
@@ -180,13 +180,13 @@ class PlayController extends Controller
         if (!$isValid) {
             $winner = $this->getMyWinner($player);
             $returnObj = array(
-                'id' => $player->id,
-                'name' => $player->name,
-                'dpi' => $player->dpi,
-                'email' => $player->email,
-                'phone' => $player->phone,
+                'id' => $player['id'],
+                'name' => $player['name'],
+                'dpi' => $player['dpi'],
+                'email' => $player['email'],
+                'phone' => $player['phone'],
                 'auth' => $authCode,
-                'atm' => $atmCode->id,
+                'atm' => $atmCode['id'],
                 'move_id' => 0,
                 'points' => $winner->points,
                 'filePath' => $winner->file,
@@ -202,20 +202,20 @@ class PlayController extends Controller
             );
             return $returnData;
         }
-        $moveObj  = Moves::whereRaw("auth = ? and atm = ?", [$authCode, $atmCode->id]);
+        $moveObj  = Moves::whereRaw("auth = ? and atm = ?", [$authCode, $atmCode['id']]);
         $move_exists  = $moveObj->count();
         if ($move_exists > 0) {
             $moveObj  = $moveObj->first();
-            if ($moveObj->player === $player->id) {
+            if ($moveObj->player === $player['id']) {
                 $returnObj = array(
-                    'id' => $player->id,
-                    'name' => $player->name,
-                    'dpi' => $player->dpi,
-                    'email' => $player->email,
+                    'id' => $player['id'],
+                    'name' => $player['name'],
+                    'dpi' => $player['dpi'],
+                    'email' => $player['email'],
                     'move_id' => $moveObj->id,
-                    'phone' => $player->phone,
+                    'phone' => $player['phone'],
                     'auth' => $authCode,
-                    'atm' => $atmCode->id,
+                    'atm' => $atmCode['id'],
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
                     'filePath' => $moveObj->file,
@@ -237,7 +237,7 @@ class PlayController extends Controller
                     'phone' => $moveObj->phone,
                     'move_id' => $moveObj->id,
                     'auth' => $authCode,
-                    'atm' => $atmCode->id,
+                    'atm' => $atmCode['id'],
                     'date' => $moveObj->created_at,
                     'points' => $moveObj->points,
                     'filePath' => $moveObj->file,
@@ -253,14 +253,14 @@ class PlayController extends Controller
             }
         }
 
-        $attachment_url = (new ImageRepository)->upload_image($file, 'ruleta/' . $player->dpi);
+        $attachment_url = (new ImageRepository)->upload_image($file, 'ruleta/' . $player['dpi']);
         $moveObj = new Moves();
         $moveObj->auth = $authCode;
-        $moveObj->atm = $atmCode->id;
+        $moveObj->atm = $atmCode['id'];
         $moveObj->file = $attachment_url;
         $moveObj->points = 0;
         $moveObj->winner = 0;
-        $moveObj->player = $player->id;
+        $moveObj->player = $player['id'];
         $moveObj->department = $depto;
         $opportunitiesObj  = Opportunity::whereRaw("avaliable = 1 and status = 1")->orderBy('repechaje', 'desc')->orderBy('id', 'asc');
         $opportunities = $opportunitiesObj->get();
@@ -352,13 +352,13 @@ class PlayController extends Controller
         }
         $moveObj->save();
         $returnObj = array(
-            'id' => $player->id,
-            'name' => $player->name,
-            'dpi' => $player->dpi,
-            'email' => $player->email,
-            'phone' => $player->phone,
+            'id' => $player['id'],
+            'name' => $player['name'],
+            'dpi' => $player['dpi'],
+            'email' => $player['email'],
+            'phone' => $player['phone'],
             'auth' => $authCode,
-            'atm' => $atmCode->id,
+            'atm' => $atmCode['id'],
             'move_id' => $moveObj->id,
             'points' => $moveObj->points,
             'repechaje' => $moveObj->repechaje,
@@ -413,7 +413,7 @@ class PlayController extends Controller
     public function validatePlayer($player, $authCode, $atmCode, $limited = true)
     {
         $now = date('Y-m-d H:m:s');
-        $moveObj  = Moves::whereRaw("player = ? and winner = 1", [$player->id]);
+        $moveObj  = Moves::whereRaw("player = ? and winner = 1", [$player['id']]);
         return $moveObj->count() === 0;
     }
 
@@ -426,7 +426,7 @@ class PlayController extends Controller
 
     public function yaTieneRepechaje($player)
     {
-        $moveObj  = Moves::whereRaw("repechaje = 1 and player = ?", [$player->id]);
+        $moveObj  = Moves::whereRaw("repechaje = 1 and player = ?", [$player['id']]);
         return $moveObj->count() > 0;
     }
 
@@ -439,7 +439,7 @@ class PlayController extends Controller
 
     public function getMyWinner($player)
     {
-        $moveObj  = Moves::whereRaw("player = ? and winner = 1", $player->id)->first();
+        $moveObj  = Moves::whereRaw("player = ? and winner = 1", $player['id'])->first();
         return $moveObj;
     }
 

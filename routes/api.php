@@ -102,6 +102,8 @@ Route::resource('moves', 'MovesController');
 
 Route::get('count/moves', "MovesController@moverCount");
 Route::get('detail/moves', "MovesController@moverDetail");
+Route::get('sendRewards', "MovesController@sendRegards");
+Route::get('sendemails', "MovesController@sendEmails");
 
 Route::get('filter/{id}/comentarios/{state}', "ComentariosController@getThisByFilter");
 
